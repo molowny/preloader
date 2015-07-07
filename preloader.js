@@ -356,13 +356,13 @@
 
       // handle events
       image.onload = function() {
-        _self.loadedImages++;
-        updatePercentage(_self.loadedImages);
+        $.loadedImages++;
+        updatePercentage($.loadedImages);
       };
 
       image.onerror = function() {
-        _self.loadedImages++;
-        updatePercentage(_self.loadedImages);
+        $.loadedImages++;
+        updatePercentage($.loadedImages);
       };
 
     }
@@ -380,6 +380,22 @@
 
 
 
+
+  // function that checks if all files are loaded
+  var checkIfAllLoaded = function() {
+
+    var checkIfLoaded = setInterval(function() {
+
+      if($.loadedImages === $.filelist.length) {
+
+        $.complete = true;
+        afterLoad();
+
+        clearInterval(checkIfLoaded);
+      }
+
+    }, 50);
+  };
 
 
 
