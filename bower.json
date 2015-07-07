@@ -1,0 +1,30 @@
+{
+  "name": "preloader-rg",
+  "main": ["preloader.js", "preloader.min.js"],
+  "version": "1.0",
+  "homepage": "",
+  "authors": [
+    "rgalus <biuro@rafalgalus.pl>"
+  ],
+  "description": "Pure js preloader which gets files from html and css",
+  "keywords": [
+      "javascript",
+      "preloader",
+      "pure js"
+  ],
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "index.html",
+    ".editorconfig"
+  ]
+}
