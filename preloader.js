@@ -2,7 +2,6 @@
 /*
  * Preloader (pure js) - 1.0
  * It's automatic loading images from HTML structure and included CSS files, using Promise object (if supported).
- * Copyright (C) 2015 rafalgalus.pl - by Rafal Galus
  */
 
 
