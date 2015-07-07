@@ -17,6 +17,10 @@
     "globals",
     "node"
   ],
+  "repository": {
+  "type": "git",
+  "url": "git://github.com/rgalus/preloader.git"
+  },
   "license": "MIT",
   "ignore": [
     "**/.*",
