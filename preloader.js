@@ -446,17 +446,3 @@
 
 
 }()));
-
-
-
-preloader.init({
-  beforeLoad: function() {
-    console.log(1);
-  },
-  afterLoad: function() {
-    console.log(2);
-  },
-  onUpdate: function(per) {
-    console.log(per + '%');
-  }
-});
