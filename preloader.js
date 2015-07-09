@@ -32,7 +32,7 @@
 
     debug: false,
 
-    // mode: 1, // 1: html, css | 2: html
+    getFromCSS: true,
 
     filesToLoad: [],
 
@@ -51,18 +51,22 @@
 
 
   $.regex = {
-    src: /src=\"(.*?)\"/gm,
-    url: /url\((.*?)\)/gm,
-    css: /<link href=\"(.*?)\"/gm
+    files: /(href="(.*?)")|(src="(.*?)")|(url\((.*?)\))/g,
+    junk: /(&quot;)|(')|(")/g,
+    breaks: ["2", "4", "6"]
   };
 
 
 
   $.html = String(document.querySelector("html").innerHTML);
+  $.css = [];
 
 
 
   var loadFunctions = [];
+
+
+
 
 
 
@@ -79,22 +83,41 @@
       }
 
 
-      if($.options.filesToLoad.length) {
+    if($.options.filesToLoad.length) {
+
+        $.filelist = function() {
+
+          var images = [];
+          for (var i = $.options.filesToLoad.length - 1; i >= 0; i--) {
+            if(filter($.options.filesToLoad[i]) === 'image') {
+              images.push($.options.filesToLoad[i]);
+            }
+          };
+
+          if(images.length <= 0 && $.options.debug) throw 'Error: Badly defined custom filelist.';
+
+          return images;
+
+        }();
+
+        beforeLoad();
+
+    } else {
+
+      getImages(function(matches) {
 
         // remove duplicates
-        $.filelist = $.options.filesToLoad.filter(function(x, y) {
-          return $.options.filesToLoad.indexOf(x) == y;
+        $.filelist = matches.filter(function(x, y) {
+          return matches.indexOf(x) == y;
         });
+
 
         beforeLoad();
 
 
-      } else {
+      });
 
-        getFromHTML(getFromCSS);
-
-      }
-
+    };
 
 
     } catch(err) {
@@ -142,101 +165,109 @@
 
 
 
+  var getImages = function(callback) {
 
-  var checkIfAllowed = function(file) {
+    var matches = [];
 
-    var getType = /([^.;+_]+)$/.exec(file),
-        fileType = getType && getType[1];
+    // exec html with regex
+    while(match = $.regex.files.exec($.html)) {
 
-    // checking if file format is defined in config as allowed
-    if($.options.allowed.indexOf(fileType) > -1) {
-      return true;
-    } else {
-      return false;
-    }
+      for (var i in $.regex.breaks) {
 
-  };
+        if(typeof match[$.regex.breaks[i]] !== 'undefined') {
 
+          var match = match[$.regex.breaks[i]].replace($.regex.junk, "");
 
+          if(filter(match) === 'image') {
 
-  var getFromHTML = function(callback) {
+            matches.push(match);
 
-    var match, matches = [];
+          } else if(filter(match) === 'css') {
 
-    while(match = $.regex.src.exec($.html)) {
-
-      // checks if format is defined in config as allowed to load
-      if(checkIfAllowed(match[1])) {
-        matches.push(match[1]);
-      }
-
-    }
-
-    while(match = $.regex.url.exec($.html)) {
-
-      match = match[1].replace(/[']/g, ""); // delete ' if string contains
-
-      // checks if fileformat is defined in config as allowed to load
-      if(checkIfAllowed(match)) {
-        matches.push(match);
-      }
-
-    }
-
-
-    if(typeof callback == 'function') {
-      callback();
-    }
-
-  };
-
-
-
-
-
-  var getFromCSS = function() {
-
-    var match, matches = [];
-
-    while(match = $.regex.css.exec($.html)) {
-
-      // making request to download css file
-      var request = new XMLHttpRequest();
-      request.open("GET", match[1], true);
-      request.send();
-
-      request.onreadystatechange = function() {
-        if (request.readyState == 4 && request.status == 200) {
-
-          // gets images from url('*')
-          while(match = $.regex.url.exec(request.responseText)) {
-
-            // delete ' if string contains
-            match = match[1].replace(/[']/g, "");
-
-            // checks if fileformat is defined in config as allowed to load
-            if(checkIfAllowed(match)) {
-              matches.push(match);
-            }
+            $.css.push(match);
 
           }
 
-
-          // remove duplicates
-          $.filelist = matches.filter(function(x, y) {
-            return matches.indexOf(x) == y;
-          });
-
-          beforeLoad();
-
         }
+
       };
 
     }
 
 
+    if($.options.getFromCSS) {
+
+      var request = [];
+
+      for (var i = $.css.length - 1; i >= 0; i--) {
+
+        (function(i) {
+
+          request[i] = new XMLHttpRequest();
+          request[i].open("GET", $.css[i], true);
+          request[i].send();
+
+          request[i].onreadystatechange = function() {
+
+            if (request[i].readyState == 4 && request[i].status == 200) {
+
+              while(match = $.regex.files.exec(request[i].responseText)) {
+
+                var match = match[6].replace($.regex.junk, "");
+
+                if(filter(match) === 'image') {
+
+                  matches.push(match);
+
+                }
+
+              }
+
+              if(!i) {
+
+                callback(matches);
+
+              }
+
+            }
+          }
+
+
+
+
+        })(i);
+
+
+
+      };
+
+
+    } else {
+
+      callback(matches);
+
+    }
+  };
+
+
+
+
+
+
+  // filter matches from regex
+  var filter = function (file) {
+
+    var getType = /([^.;+_]+)$/.exec(file),
+        fileType = getType && getType[1];
+
+    if($.options.allowed.indexOf(fileType) > -1) {
+      return 'image';
+    } else {
+      return fileType;
+    }
 
   };
+
 
 
 
@@ -407,14 +438,6 @@
    */
 
   var afterLoad = function() {
-
-    // remove onload function from images in DOM added by init function at beginning
-    // var images = document.images;
-
-    // for (var i = images.length - 1; i >= 0; i--) {
-    //   images[i].removeAttribute("onload");
-    // }
-
 
     setTimeout(function() {
 
