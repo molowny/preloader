@@ -6,11 +6,10 @@
   "authors": [
     "rgalus <biuro@rafalgalus.pl>"
   ],
-  "description": "Pure js preloader which gets files from html and css",
+  "description": "Pure js preloader which get files from html and css",
   "keywords": [
       "javascript",
-      "preloader",
-      "pure js"
+      "preloader"
   ],
   "moduleType": [
     "amd",
