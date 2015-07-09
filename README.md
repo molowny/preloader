@@ -1,10 +1,12 @@
 # preloader
-Pure js preloader which gets files from html and css
+Pure js preloader which get files from HTML and CSS.
 
 ### Usage
-Install via bower:
+Install via bower/npm:
 ````
 bower install preloader-rg
+
+npm install preloader-rg
 ````
 
 Initialize with:
@@ -17,9 +19,9 @@ preloader.init({
 ### Options
 Option | Type | Default | Description
 ------ | ---- | ------- | ----
-filesToLoad | array | [] | You can specify which files have to be loaded. Preloader will not get files from html nor css 
-allowed | array | ['jpg', 'jpeg', 'png', 'gif'] | You can specify allowed filetypes
-loadDelay | number | 0 | loadDelay is used for timeout function after load is completed
+filesToLoad | array | [] | You can specify which files have to be loaded. Preloader will not get files from html nor css then.
+allowed | array | ['jpg', 'jpeg', 'png', 'gif'] | You can specify allowed filetypes.
+loadDelay | number | 0 | Delay is used for timeout function after load is completed.
 
 
 ### Events
@@ -33,7 +35,7 @@ onUpdate | percent
 ### Methods
 ##### onLoad
 ````
-preloader.onLoad(function(){
+preloader.onLoad(function() {
   // your function called after load is completed
 });
 ````
