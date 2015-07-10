@@ -1,15 +1,18 @@
 {
   "name": "preloader-rg",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pure js preloader which get files from HTML and CSS",
-  "main": ["preloader.js", "preloader.min.js"],
+  "main": [
+    "preloader.js",
+    "preloader.min.js"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/rgalus/preloader.git"
   },
   "keywords": [
-      "javascript",
-      "preloader"
+    "javascript",
+    "preloader"
   ],
   "author": "Rafal Galus",
   "license": "MIT",
