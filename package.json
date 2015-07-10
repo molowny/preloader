@@ -1,6 +1,6 @@
 {
   "name": "preloader-rg",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Pure js preloader which get files from HTML and CSS",
   "main": ["preloader.js", "preloader.min.js"],
   "repository": {

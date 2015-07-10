@@ -1,6 +1,6 @@
 
 /*
- * Preloader (pure js) - 1.0
+ * Preloader (pure js) - 1.0.1
  * It's automatic loading images from HTML structure and included CSS files, using Promise object (if supported).
  */
 
