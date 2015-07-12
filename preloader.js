@@ -1,7 +1,7 @@
 
 /*
- * Preloader (pure js) - 1.0.1
- * It's automatic loading images from HTML structure and included CSS files, using Promise object (if supported).
+ * Preloader (pure js) - 1.0.2
+ * A javascript library to preload images from HTML and CSS.
  */
 
 
@@ -9,13 +9,13 @@
 
 (function (root, factory) {
 
-    if (typeof define === 'function' && define.amd) { // AMD
-        define(factory);
-    } else if (typeof exports === 'object') { // Node.js, CommonJS
-        module.exports = factory();
-    } else {
-        root.preloader = factory; // Window
-    }
+  if (typeof define === 'function' && define.amd) { // AMD
+      define(factory);
+  } else if (typeof exports === 'object') { // Node, CommonJS
+      module.exports = factory();
+  } else {
+      root.preloader = factory; // Browser (window)
+  }
 
 }(this, function() {
 
@@ -27,16 +27,15 @@
   var $ = {};
 
 
-
   $.defaults = {
 
-    debug: false,
+    debug: false, // boolean
 
-    getFromCSS: true,
+    getFromCSS: true, // boolean
 
-    filesToLoad: [],
+    filesToLoad: [], // array
 
-    allowed: ['jpg', 'jpeg', 'png', 'gif'],
+    allowed: ['jpg', 'jpeg', 'png', 'gif'], // array
 
     loadDelay: 0, // ms
 
@@ -51,9 +50,9 @@
 
 
   $.regex = {
-    files: /(href="(.*?)")|(src="(.*?)")|(url\((.*?)\))/g,
-    junk: /(&quot;)|(')|(")/g,
-    breaks: ["2", "4", "6"]
+    files: /(href="(.*?)")|(src="(.*?)")|(url\((.*?)\))/g, // get string from url({*}), src="{*}", href="{*}"
+    junk: /(&quot;)|(')|(")/g, // clear string from ugly chars
+    breaks: ["2", "4", "6"] // regex.files breaks, 2:href, 4:src, 6:url
   };
 
 
@@ -72,6 +71,8 @@
 
   var init = function(customOptions) {
 
+
+
     try {
 
       checkPromiseSupport();
@@ -83,41 +84,45 @@
       }
 
 
-    if($.options.filesToLoad.length) {
+      if($.options.debug) { console.time('Preloader'); }
 
-        $.filelist = function() {
 
-          var images = [];
-          for (var i = $.options.filesToLoad.length - 1; i >= 0; i--) {
-            if(filter($.options.filesToLoad[i]) === 'image') {
-              images.push($.options.filesToLoad[i]);
-            }
-          };
+      if($.options.filesToLoad.length) {
 
-          if(images.length <= 0 && $.options.debug) throw 'Error: Badly defined custom filelist.';
+          $.filelist = function() {
 
-          return images;
+            var images = [];
 
-        }();
+            for (var i = $.options.filesToLoad.length - 1; i >= 0; i--) {
+              if(filter($.options.filesToLoad[i]) === 'image') {
+                images.push($.options.filesToLoad[i]);
+              }
+            };
 
-        beforeLoad();
+            if(images.length === 0 && $.options.debug) throw 'Wrong defined images format.';
 
-    } else {
+            return images;
 
-      getImages(function(matches) {
+          }();
 
-        // remove duplicates
-        $.filelist = matches.filter(function(x, y) {
-          return matches.indexOf(x) == y;
+          beforeLoad();
+
+      } else {
+
+        getImages(function(matches) {
+
+          // remove duplicates
+          $.filelist = matches.filter(function(x, y) {
+            return matches.indexOf(x) == y;
+          });
+
+
+          beforeLoad();
+
+
         });
 
-
-        beforeLoad();
-
-
-      });
-
-    };
+      };
 
 
     } catch(err) {
@@ -141,11 +146,8 @@
 
         $.defaults[key] = customOptions[key];
 
-      } else {
-
-        if($.defaults.debug) throw "There's no option called: '" + key + "'";
-
       }
+
     }
 
     return $.defaults;
@@ -302,17 +304,21 @@
       var files = $.filelist.map(function (src) {
 
         // call function loadImage on each image
-        return loadImage(src).then(function() {
+        return loadImage(src).then(function(image) {
 
           // update percentage on resolve
           loaded++;
           updatePercentage(loaded);
 
-        }, function(error) {
+          if($.options.debug) { console.log(image.src); };
+
+        }, function(image) {
 
           // update percentage on reject
           loaded++;
           updatePercentage(loaded);
+
+          if($.options.debug) { console.log("No image: " + image.src); };
 
         });
 
@@ -365,11 +371,11 @@
 
         // handle events
         image.onload = function() {
-          resolve();
+          resolve(image);
         };
 
         image.onerror = function() {
-          reject("Can't find: " + src);
+          reject(image);
         };
 
       });
@@ -389,11 +395,15 @@
       image.onload = function() {
         $.loadedImages++;
         updatePercentage($.loadedImages);
+
+        if($.options.debug) { console.log(image.src); };
       };
 
       image.onerror = function() {
         $.loadedImages++;
         updatePercentage($.loadedImages);
+
+        if($.options.debug) { console.log("No image: " + image.src); };
       };
 
     }
@@ -450,6 +460,9 @@
       }
 
     }, $.options.loadDelay);
+
+
+    if($.options.debug) { console.timeEnd('Preloader'); };
 
   };
 

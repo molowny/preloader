@@ -1,5 +1,5 @@
 # preloader
-Pure js image preloader which get files from HTML and CSS.
+A javascript library to preload images from HTML and CSS.
 
 ### Usage
 Install:
