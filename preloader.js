@@ -48,31 +48,25 @@
 
       if ($.options.debug) { console.time('Preloader'); }
 
-      beforeLoad();
-
       if ($.options.filesToLoad.length) {
-        $.filelist = function() {
-          var images = [];
+        $.filelist = [];
 
-          for (var i = $.options.filesToLoad.length - 1; i >= 0; i--) {
-            if(filter($.options.filesToLoad[i]) === 'image') {
-              images.push($.options.filesToLoad[i]);
-            }
-          };
+        $.filelist = $.options.filesToLoad.filter(function(el) {
+          return filter(el) === 'image';
+        });
 
-          if (images.length === 0 && $.options.debug) throw 'Wrong defined images format.';
-
-          return images;
-        }();
+        if (images.length === 0 && $.options.debug) throw 'Wrong defined images format.';
       } else {
         getImages(function(matches) {
           // remove duplicates
           $.filelist = matches.filter(function(x, y) {
-            return matches.indexOf(x) == y;
+            return matches.indexOf(x) === y;
           });
         });
 
       };
+
+      beforeLoad();
 
     } catch (err) {
       console.log(err);
@@ -161,7 +155,7 @@
   };
 
   var beforeLoad = function() {
-    if(typeof $.options.beforeLoad == 'function') {
+    if (typeof $.options.beforeLoad == 'function') {
       $.options.beforeLoad();
     }
 
